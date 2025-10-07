@@ -5,6 +5,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 
 import logger from '#config/logger.js';
+import authRoutes from '#routes/auth.routes.js';
+import { HTTP_STATUS } from '#constants/http.js';
 
 const app = express();
 
@@ -23,7 +25,21 @@ app.use(
 
 app.get('/', (req, res) => {
   logger.info('Hello World Acquisitions!');
-  res.status(200).send('Hello World Acquisitions!');
+  res.status(HTTP_STATUS.OK).send('Hello World Acquisitions!');
 });
+
+app.get('/health', (req, res) => {
+  res.status(HTTP_STATUS.OK).json({
+    status: 'OK',
+    time: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+app.get('/api', (req, res) => {
+  res.status(HTTP_STATUS.OK).json({ message: 'Acquisitions API is Running!' });
+});
+
+app.use('/api/auth', authRoutes);
 
 export default app;
