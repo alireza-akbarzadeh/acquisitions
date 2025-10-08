@@ -25,7 +25,7 @@ export const signup = async (req, res, next) => {
       email: user.email,
       role: user.role,
     });
-    cookie.setValue(res, 'token', token);
+    cookies.setValue(res, 'token', token);
 
     logger.info(MESSAGE.USER_REGISTER_SUCCESSFULLY + ' ' + email);
     res.status(HTTP_STATUS.CREATED).json({
@@ -73,7 +73,7 @@ export const signIn = async (req, res, next) => {
 
     logger.info(`User signed in successfully: ${email}`);
     res.status(HTTP_STATUS.OK).json({
-      message: MESSAGE.USER_SIGNED_IN_SUCCESSFULLY,
+      message: MESSAGE.USER_REGISTER_SUCCESSFULLY,
       user: {
         user: {
           id: user.id,
@@ -99,7 +99,7 @@ export const signOut = async (req, res, next) => {
     cookies.clear(res, 'token');
 
     res.status(HTTP_STATUS.OK).json({
-      message: MESSAGE.USER_SIGNED_OUT_SUCCESSFULLY,
+      message: MESSAGE.USER_REGISTER_SUCCESSFULLY,
     });
   } catch (e) {
     logger.error('Sign out error', e);

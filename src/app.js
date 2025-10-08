@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import logger from '#config/logger.js';
 import authRoutes from '#routes/auth.routes.js';
 import { HTTP_STATUS } from '#constants/http.js';
+import securityMiddleware from '#middleware/security.middleware.js';
 
 const app = express();
 
@@ -22,6 +23,8 @@ app.use(
     stream: { write: message => logger.info(message.trim()) },
   })
 );
+
+app.use(securityMiddleware);
 
 app.get('/', (req, res) => {
   logger.info('Hello World Acquisitions!');
