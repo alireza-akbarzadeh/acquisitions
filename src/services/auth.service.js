@@ -4,6 +4,16 @@ import bcrypt from 'bcrypt';
 import { eq } from 'drizzle-orm';
 import { db } from '#config/database.js';
 import { users } from '#models/user.model.js';
+import { signUpSchema } from '#validations/auth-validation.js';
+
+export const comparePassword = async (password, hash) => {
+  try {
+    return await bcrypt.compare(password, hash);
+  } catch (error) {
+    logger.error(ERROR_MESSAGE.COMPARE_PASSWORD_ERROR, error);
+    throw new Error(ERROR_MESSAGE.COMPARE_PASSWORD_ERROR);
+  }
+};
 
 export const hashPassword = async password => {
   try {
@@ -42,6 +52,41 @@ export const createUser = async ({ name, email, password, role = 'user' }) => {
     return newUser;
   } catch (e) {
     logger.error(`Error creating the user: ${e}`);
+    throw e;
+  }
+};
+
+export const authenticateUser = async ({ email, password }) => {
+  try {
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email))
+      .limit(1);
+
+    if (!existingUser) {
+      throw new Error('Invalid credentials');
+    }
+
+    const isPasswordValid = await comparePassword(
+      password,
+      existingUser.password
+    );
+
+    if (!isPasswordValid) {
+      throw new Error('Invalid credentials');
+    }
+
+    logger.info(`User ${existingUser.email} authenticated successfully`);
+    return {
+      id: existingUser.id,
+      name: existingUser.name,
+      email: existingUser.email,
+      role: existingUser.role,
+      created_at: existingUser.created_at,
+    };
+  } catch (e) {
+    logger.error(`Error authenticating user: ${e}`);
     throw e;
   }
 };
